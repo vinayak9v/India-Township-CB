@@ -1,16 +1,16 @@
 "use client";
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
-  Phone, ShieldCheck, User, ArrowLeft, Loader2, CheckCircle2,
+  Phone, Mail, ShieldCheck, User, ArrowLeft, Loader2, CheckCircle2,
   Home as HomeIcon, Users, Headset, BadgeCheck, ChevronDown
 } from 'lucide-react';
 
 const BENEFITS = [
   { icon: CheckCircle2, text: 'List your property for free' },
   { icon: CheckCircle2, text: 'Get genuine buyer & tenant enquiries' },
-  { icon: CheckCircle2, text: 'Simple, secure phone number login' },
+  { icon: CheckCircle2, text: 'Simple, secure email OTP login' },
   { icon: CheckCircle2, text: 'Trusted by thousands across India' },
 ];
 
@@ -37,8 +37,10 @@ function AuthPageContent() {
   const [step, setStep] = useState(1); // 1 = enter details, 2 = verify OTP
 
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
+  const [resendIn, setResendIn] = useState(0); // seconds until "Resend OTP" is allowed
 
   // Register-only: property intent, carried forward into the Add Property form after signup
   const [lookingTo, setLookingTo] = useState('SELL');
@@ -52,15 +54,26 @@ function AuthPageContent() {
 
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
+  // Count down the resend timer once per second
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
+
   const switchTab = (tab) => {
     setActiveTab(tab);
     setStep(1);
     setName('');
+    setEmail('');
     setPhone('');
     setOtp('');
+    setResendIn(0);
     setError('');
     setSuccess('');
   };
+
+  const cleanEmail = email.trim().toLowerCase();
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
@@ -68,19 +81,25 @@ function AuthPageContent() {
     setSuccess('');
 
     const cleanPhone = phone.trim();
-    if (!cleanPhone) {
-      setError('Please enter your phone number.');
-      return;
-    }
     if (activeTab === 'register' && !name.trim()) {
       setError('Please enter your name.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    if (activeTab === 'register' && !/^[6-9]\d{9}$/.test(cleanPhone)) {
+      setError('Please enter a valid 10-digit mobile number.');
       return;
     }
 
     setLoading(true);
     try {
       const endpoint = activeTab === 'register' ? '/api/auth/register' : '/api/auth/login';
-      const body = activeTab === 'register' ? { name: name.trim(), phone: cleanPhone } : { phone: cleanPhone };
+      const body = activeTab === 'register'
+        ? { name: name.trim(), email: cleanEmail, phone: cleanPhone }
+        : { email: cleanEmail };
 
       const res = await fetch(`${API_BASE}${endpoint}`, {
         method: 'POST',
@@ -90,10 +109,13 @@ function AuthPageContent() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
+        if (data.retryAfter) setResendIn(data.retryAfter);
         throw new Error(data.message || data.error || 'Failed to send OTP.');
       }
 
-      setSuccess(data.message || 'OTP sent to your phone number.');
+      setSuccess(data.message || 'OTP sent to your email.');
+      setOtp('');
+      setResendIn(60);
       setStep(2);
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
@@ -116,8 +138,8 @@ function AuthPageContent() {
     try {
       const endpoint = activeTab === 'register' ? '/api/auth/register' : '/api/auth/login';
       const body = activeTab === 'register'
-        ? { name: name.trim(), phone: phone.trim(), otp: otp.trim() }
-        : { phone: phone.trim(), otp: otp.trim() };
+        ? { name: name.trim(), email: cleanEmail, phone: phone.trim(), otp: otp.trim() }
+        : { email: cleanEmail, otp: otp.trim() };
 
       const res = await fetch(`${API_BASE}${endpoint}`, {
         method: 'POST',
@@ -231,7 +253,7 @@ function AuthPageContent() {
                 onClick={() => { setStep(1); setOtp(''); setError(''); setSuccess(''); }}
                 className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700 mb-6"
               >
-                <ArrowLeft className="w-3.5 h-3.5" /> Change Number
+                <ArrowLeft className="w-3.5 h-3.5" /> Change Email
               </button>
             )}
 
@@ -244,9 +266,9 @@ function AuthPageContent() {
               <p className="text-sm text-slate-500">
                 {step === 1
                   ? (activeTab === 'login'
-                      ? "Enter your phone number to login — it's quick and secure"
-                      : 'Just your name and phone number to get started')
-                  : `Enter the code sent to +91 ${phone}`}
+                      ? "Enter your email and we'll send you a one-time code"
+                      : 'Your name, email and phone number to get started')
+                  : `Enter the 6-digit code sent to ${cleanEmail}`}
               </p>
             </div>
 
@@ -350,7 +372,26 @@ function AuthPageContent() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
-                    {activeTab === 'register' ? "Your contact number for buyers to reach you" : 'Phone Number'}
+                    Email Address {activeTab === 'register' && <span className="normal-case font-medium text-slate-400">(OTP will be sent here)</span>}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      autoComplete="email"
+                      disabled={loading}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-11 pr-4 text-sm text-[#0a1629] font-medium outline-none focus:bg-white focus:border-[#d9982b] focus:ring-2 focus:ring-[#d9982b]/20 transition-all"
+                    />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  </div>
+                </div>
+
+                {activeTab === 'register' && (
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">
+                    Your contact number for buyers to reach you
                   </label>
                   <div className="relative flex items-center">
                     <span className="absolute left-4 text-sm font-semibold text-slate-500 border-r border-slate-200 pr-3">+91</span>
@@ -366,6 +407,7 @@ function AuthPageContent() {
                     <Phone className="absolute right-4 w-4 h-4 text-slate-400" />
                   </div>
                 </div>
+                )}
 
                 <button
                   type="submit"
@@ -392,7 +434,7 @@ function AuthPageContent() {
                     <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   </div>
                   <p className="text-[11px] text-slate-400 mt-2">
-                    No SMS gateway is connected yet — check the server console/logs for your OTP.
+                    Didn&apos;t get it? Check your spam / promotions folder. The code is valid for 10 minutes.
                   </p>
                 </div>
 
@@ -407,10 +449,10 @@ function AuthPageContent() {
                 <button
                   type="button"
                   onClick={handleSendOtp}
-                  disabled={loading}
-                  className="w-full text-center text-xs font-semibold text-[#d9982b] hover:underline disabled:opacity-50"
+                  disabled={loading || resendIn > 0}
+                  className="w-full text-center text-xs font-semibold text-[#d9982b] hover:underline disabled:opacity-50 disabled:no-underline disabled:cursor-not-allowed"
                 >
-                  Resend OTP
+                  {resendIn > 0 ? `Resend OTP in ${resendIn}s` : 'Resend OTP'}
                 </button>
               </form>
             )}

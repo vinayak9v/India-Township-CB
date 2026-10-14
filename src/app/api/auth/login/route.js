@@ -1,29 +1,41 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
 import jwt from "jsonwebtoken";
-import { setOtp, verifyOtp } from "@/lib/otpStore";
+import { generateOtp, setOtp, verifyOtp, resendWaitSeconds } from "@/lib/otpStore";
+import { sendOtpEmail } from "@/lib/nodemailer";
 
 const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
+// Two-step email OTP login:
+//   1. { email }        -> emails a 6-digit OTP
+//   2. { email, otp }   -> verifies it and returns a JWT
 export async function POST(req) {
   try {
-    const { phone, otp } = await req.json();
+    const body = await req.json();
+    const email = String(body.email || "").trim().toLowerCase();
+    const otp = body.otp ? String(body.otp).trim() : "";
 
-    if (!phone) {
-      return NextResponse.json({ success: false, error: "Phone number is required" }, { status: 400 });
+    if (!email) {
+      return NextResponse.json({ success: false, error: "Email is required" }, { status: 400 });
     }
 
-    const [users] = await db.query("SELECT * FROM users WHERE phone = ?", [phone]);
+    const [users] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
     if (users.length === 0) {
-      return NextResponse.json({ success: false, error: "No account found with this phone number" }, { status: 404 });
+      return NextResponse.json({ success: false, error: "No account found with this email. Please register first." }, { status: 404 });
     }
     const user = users[0];
+
+    if (user.is_active === 0) {
+      return NextResponse.json({ success: false, error: "This account has been deactivated. Please contact support." }, { status: 403 });
+    }
+
+    const otpKey = `login:${email}`;
 
     // ==========================================
     // STEP 2: Verify OTP and log in
     // ==========================================
     if (otp) {
-      const isValid = verifyOtp(`login:${phone}`, otp);
+      const isValid = verifyOtp(otpKey, otp);
       if (!isValid) {
         return NextResponse.json({ success: false, error: "Invalid or expired OTP. Please request a new one." }, { status: 400 });
       }
@@ -34,7 +46,7 @@ export async function POST(req) {
         success: true,
         message: "Login successful",
         token,
-        user: { id: user.id, name: user.name, role: user.role },
+        user: { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role },
       });
 
       response.cookies.set("token", token, {
@@ -48,17 +60,20 @@ export async function POST(req) {
     }
 
     // ==========================================
-    // STEP 1: Send OTP
+    // STEP 1: Email the OTP
     // ==========================================
-    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    setOtp(`login:${phone}`, generatedOtp, OTP_TTL_MS);
+    const wait = resendWaitSeconds(otpKey);
+    if (wait > 0) {
+      return NextResponse.json({ success: false, error: `Please wait ${wait} seconds before requesting a new OTP.`, retryAfter: wait }, { status: 429 });
+    }
 
-    // No SMS gateway configured yet — log the OTP server-side so it can be tested end-to-end.
-    console.log(`[OTP] Login OTP for ${phone}: ${generatedOtp}`);
+    const generatedOtp = generateOtp();
+    setOtp(otpKey, generatedOtp, OTP_TTL_MS);
+    await sendOtpEmail(email, generatedOtp, "login");
 
-    return NextResponse.json({ success: true, message: "OTP sent to your phone number" });
+    return NextResponse.json({ success: true, message: `OTP sent to ${email}` });
   } catch (error) {
     console.error("Login Error:", error);
-    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Could not send OTP right now. Please try again." }, { status: 500 });
   }
 }
