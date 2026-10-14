@@ -40,7 +40,7 @@ export default function TopResidentialProjects() {
 
   return (
     <div className="w-full bg-white font-sans py-12 overflow-hidden">
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 relative">
+      <section className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative">
 
         {/* Header Area */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">

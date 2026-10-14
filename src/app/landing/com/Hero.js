@@ -82,11 +82,11 @@ export default function Hero() {
     <section className="relative font-sans bg-slate-50">
       {/* Banner */}
       <div
-        className="relative w-full h-[260px] sm:h-[320px] md:h-[380px] bg-cover bg-center transition-[background-image] duration-500"
+        className="relative w-full h-[324px] sm:h-[384px] md:h-[444px] bg-cover bg-center transition-[background-image] duration-500"
         style={{ backgroundImage: `url('${TAB_BACKGROUNDS[activeTab] || '/home.png'}')` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a1629]/50 via-[#0a1629]/20 to-transparent" />
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-16">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a1629]/60 via-[#0a1629]/20 to-transparent" />
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-[6.5rem] md:pt-32">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white drop-shadow-md max-w-xl leading-tight">
             Find a home you&apos;ll <span className="text-[#f2b544]">love</span> to live in
           </h1>

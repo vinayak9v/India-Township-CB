@@ -31,7 +31,7 @@ export default function FeaturedProperties() {
 
   return (
     <section className="py-12 bg-slate-50 font-sans">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Section Header */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
@@ -56,7 +56,7 @@ export default function FeaturedProperties() {
         ) : (
           <>
             {/* Property Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {properties.map((property) => (
                 <PropertyCard key={property.id} property={property} id={property.property_id} />
               ))}

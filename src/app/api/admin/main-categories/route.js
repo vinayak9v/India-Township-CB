@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
+import { saveImage } from "@/lib/uploads";
 
+// Accepts multipart/form-data: name, slug, status, image (optional file)
 export async function POST(req) {
   try {
-    const { name, slug, status } = await req.json();
+    const form = await req.formData();
+    const name = form.get("name");
+    const slug = form.get("slug");
+    const status = form.get("status");
 
     if (!name) {
       return NextResponse.json(
@@ -24,13 +29,21 @@ export async function POST(req) {
       );
     }
 
+    let image;
+    try {
+      image = await saveImage(form.get("image"));
+    } catch (err) {
+      return NextResponse.json({ success: false, message: err.message }, { status: 400 });
+    }
+
     const [result] = await db.query(
       `INSERT INTO main_categories
-      (name, slug, status)
-      VALUES (?, ?, ?)`,
+      (name, slug, image, status)
+      VALUES (?, ?, ?, ?)`,
       [
         name,
         slug,
+        image,
         status || "ACTIVE"
       ]
     );

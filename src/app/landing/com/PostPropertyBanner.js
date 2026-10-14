@@ -13,7 +13,7 @@ export default function PostPropertyBanner() {
 
   return (
     <section className="font-sans bg-slate-50 py-14">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-2xl bg-[#0a1629] px-6 py-10 sm:px-12 sm:py-12">
           <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-[#d9982b]/20" />
           <div className="absolute right-24 -bottom-20 w-48 h-48 rounded-full bg-[#d9982b]/10" />

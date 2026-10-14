@@ -14,7 +14,7 @@ export default function PartnerLogos() {
 
   return (
     <section className="w-full bg-[#fcfcfc] border-b border-slate-200 py-6 md:py-8 overflow-hidden">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Logos Container */}
         <div className="flex flex-wrap justify-center md:justify-between items-center gap-8 md:gap-4">

@@ -13,7 +13,7 @@ export default function Footer() {
     <footer className="bg-[#081525] text-slate-300 font-sans relative pt-16 pb-6">
       
       {/* Top Main Section */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-8 mb-16">
           
           {/* Column 1: Brand & Bio */}
@@ -118,7 +118,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-slate-400 shrink-0" />
-                <span>info@dreamhome.com</span>
+                <span className="min-w-0 break-all">info@dreamhome.com</span>
               </li>
             </ul>
           </div>
