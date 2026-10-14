@@ -366,7 +366,7 @@ function MyPropertyPageContent() {
                     onClick={() => { resetForm(); setView("form"); }}
                     className="bg-[#0a1629] hover:bg-slate-800 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-colors"
                   >
-                    Add Property
+                    Add Propertyy
                   </button>
                 </div>
               ) : (

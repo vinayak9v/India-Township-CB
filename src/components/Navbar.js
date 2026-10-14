@@ -193,7 +193,7 @@ export default function Navbar() {
                 <Plus className="w-4 h-4 stroke-[2]" />
               </div>
               <div className="flex flex-col items-start">
-                <span className="text-[15px] font-bold leading-tight">Add Property</span>
+                <span className="text-[15px] font-bold leading-tight">Add Propertyy</span>
                 <span className="text-[11px] font-medium leading-tight opacity-95">List Your Property</span>
               </div>
             </button>
