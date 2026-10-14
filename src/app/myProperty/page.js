@@ -15,6 +15,50 @@ const STATUS_STYLES = {
   INACTIVE: "bg-slate-100 text-slate-700 border-slate-200",
 };
 
+// Defined at module level so React doesn't remount inputs (and drop focus) on every keystroke
+const InputField = ({ label, required, ...props }) => (
+  <div>
+    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <input
+      {...props}
+      className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[#d9982b] focus:ring-1 focus:ring-[#d9982b] transition-colors"
+    />
+  </div>
+);
+
+const SelectField = ({ label, required, options, ...props }) => (
+  <div>
+    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <select
+      {...props}
+      className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-[#d9982b] focus:ring-1 focus:ring-[#d9982b] transition-colors cursor-pointer"
+    >
+      <option value="" disabled>Select {label}</option>
+      {options.map((opt) => (
+        <option key={opt.id} value={opt.id}>{opt.name}</option>
+      ))}
+    </select>
+  </div>
+);
+
+// Reads the file once per selection (not on every render, which caused flicker and leaked blob URLs)
+const FilePreview = ({ file, alt }) => {
+  const [src, setSrc] = useState(null);
+  useEffect(() => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setSrc(reader.result);
+    reader.readAsDataURL(file);
+    return () => reader.abort();
+  }, [file]);
+  if (!src) return null;
+  return <img src={src} alt={alt} className="w-full h-full object-cover" />;
+};
+
 function MyPropertyPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -259,35 +303,6 @@ function MyPropertyPageContent() {
     }
   };
 
-  const InputField = ({ label, required, ...props }) => (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1.5">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <input
-        {...props}
-        className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-[#d9982b] focus:ring-1 focus:ring-[#d9982b] transition-colors"
-      />
-    </div>
-  );
-
-  const SelectField = ({ label, required, options, ...props }) => (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1.5">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <select
-        {...props}
-        className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-[#d9982b] focus:ring-1 focus:ring-[#d9982b] transition-colors cursor-pointer"
-      >
-        <option value="" disabled>Select {label}</option>
-        {options.map((opt) => (
-          <option key={opt.id} value={opt.id}>{opt.name}</option>
-        ))}
-      </select>
-    </div>
-  );
-
   const propertyTypeOptions = [
     { id: "RESIDENTIAL", name: "Residential" },
     { id: "COMMERCIAL", name: "Commercial" },
@@ -506,7 +521,7 @@ function MyPropertyPageContent() {
                     <div key={boxKey} className="relative group flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 hover:bg-slate-100 hover:border-slate-400 transition-all overflow-hidden">
                       {galleryBoxes[boxKey] ? (
                         <>
-                          <img src={URL.createObjectURL(galleryBoxes[boxKey])} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
+                          <FilePreview file={galleryBoxes[boxKey]} alt={`Preview ${index + 1}`} />
                           <button
                             type="button"
                             onClick={() => removeGalleryImage(boxKey)}

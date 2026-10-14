@@ -8,7 +8,7 @@ async function saveFileLocally(file) {
   if (!file || typeof file === "string") return null;
   const buffer = Buffer.from(await file.arrayBuffer());
   const filename = `${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
-  const uploadDir = path.join(process.cwd(), "public/uploads");
+  const uploadDir = path.join(process.cwd(), "uploads");
   await mkdir(uploadDir, { recursive: true });
   await writeFile(path.join(uploadDir, filename), buffer);
   return `/uploads/${filename}`;
