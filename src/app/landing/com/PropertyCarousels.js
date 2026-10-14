@@ -39,20 +39,20 @@ export default function PropertyCarousels() {
   if (!loading && luxuryData.length === 0) return null;
 
   return (
-    <main className="min-h-screen bg-slate-50 font-sans py-16 space-y-24 overflow-hidden">
+    <div className="bg-slate-50 font-sans py-12 overflow-hidden">
 
       {/* =========================================
           LUXURY PROPERTIES
           ========================================= */}
-      <section className="max-w-[90rem] mx-auto px-6 md:px-12 relative">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 relative">
 
         {/* Header Area */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
-            <span className="text-[#d9982b] font-bold text-[13px] tracking-wider uppercase mb-1 block">
+            <span className="text-slate-500 font-bold text-xs sm:text-sm tracking-[0.15em] uppercase mb-1.5 block">
               Luxury Living
             </span>
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#0a1629]">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#0a1629]">
               Luxury Properties
             </h2>
           </div>
@@ -101,6 +101,6 @@ export default function PropertyCarousels() {
         )}
       </section>
 
-    </main>
+    </div>
   );
 }

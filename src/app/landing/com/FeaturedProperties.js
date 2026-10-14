@@ -30,20 +30,20 @@ export default function FeaturedProperties() {
   if (!loading && properties.length === 0) return null;
 
   return (
-    <section className="py-20 bg-slate-50 font-sans">
-      <div className="max-w-[90rem] mx-auto px-6 md:px-12">
+    <section className="py-12 bg-slate-50 font-sans">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
 
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
           <div className="max-w-xl">
-            <span className="text-[#d9982b] font-bold text-sm tracking-widest uppercase mb-2 block">
-              Our Properties
+            <span className="text-slate-500 font-bold text-xs sm:text-sm tracking-[0.15em] uppercase mb-1.5 block">
+              Handpicked for you
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#0a1629] leading-tight">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#0a1629]">
               Latest Featured Properties
             </h2>
           </div>
-          <Link href="/allproject" className="hidden md:flex items-center gap-2 text-slate-600 hover:text-[#d9982b] font-semibold transition-colors">
+          <Link href="/allproject" className="hidden md:flex items-center gap-2 text-[#d9982b] hover:text-[#b87d1c] font-semibold text-sm transition-colors">
             View All Properties <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -56,7 +56,7 @@ export default function FeaturedProperties() {
         ) : (
           <>
             {/* Property Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {properties.map((property) => (
                 <PropertyCard key={property.id} property={property} id={property.property_id} />
               ))}

@@ -29,7 +29,7 @@ export default function TrustBanner() {
   ];
 
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans">
+    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pb-8 font-sans">
       {/* Main Container */}
       <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 py-2 px-4 lg:py-0">
         

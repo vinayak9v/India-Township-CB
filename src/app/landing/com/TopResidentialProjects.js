@@ -39,16 +39,16 @@ export default function TopResidentialProjects() {
   if (!loading && projects.length === 0) return null;
 
   return (
-    <main className="w-full bg-white font-sans py-16 overflow-hidden">
-      <section className="max-w-[90rem] mx-auto px-6 md:px-12 relative">
+    <div className="w-full bg-white font-sans py-12 overflow-hidden">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 relative">
 
         {/* Header Area */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
-            <span className="text-[#d9982b] font-bold text-[12px] tracking-wider uppercase mb-2 block">
+            <span className="text-slate-500 font-bold text-xs sm:text-sm tracking-[0.15em] uppercase mb-1.5 block">
               Top Picks
             </span>
-            <h2 className="text-3xl md:text-[34px] font-serif font-bold text-[#0a1629]">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#0a1629]">
               Top Residential Projects
             </h2>
           </div>
@@ -109,6 +109,6 @@ export default function TopResidentialProjects() {
         )}
 
       </section>
-    </main>
+    </div>
   );
 }

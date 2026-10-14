@@ -5,7 +5,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 export default function PromoAndTestimonial() {
   return (
     <section className="w-full bg-slate-50 font-sans py-16">
-      <div className="max-w-[90rem] mx-auto px-6 md:px-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         
         {/* Main Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
