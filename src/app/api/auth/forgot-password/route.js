@@ -19,7 +19,7 @@ export async function POST(req) {
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    setOtp(`reset:${email}`, otp, OTP_TTL_MS);
+    await setOtp(`reset:${email}`, otp, OTP_TTL_MS);
 
     await transporter.sendMail({
       from: process.env.GMAIL_USER,

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
 import jwt from "jsonwebtoken";
-import { generateOtp, setOtp, verifyOtp, resendWaitSeconds } from "@/lib/otpStore";
+import { generateOtp, setOtp, verifyOtp, resendWaitSeconds, clearOtp } from "@/lib/otpStore";
 import { sendOtpEmail } from "@/lib/nodemailer";
 
 const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes
@@ -43,7 +43,7 @@ export async function POST(req) {
     // STEP 2: Verify OTP and create the account
     // ==========================================
     if (otp) {
-      const isValid = verifyOtp(otpKey, otp);
+      const isValid = await verifyOtp(otpKey, otp);
       if (!isValid) {
         return NextResponse.json({ success: false, message: "Invalid or expired OTP. Please request a new one." }, { status: 400 });
       }
@@ -85,14 +85,19 @@ export async function POST(req) {
       return NextResponse.json({ success: false, message: conflict }, { status: 400 });
     }
 
-    const wait = resendWaitSeconds(otpKey);
+    const wait = await resendWaitSeconds(otpKey);
     if (wait > 0) {
       return NextResponse.json({ success: false, message: `Please wait ${wait} seconds before requesting a new OTP.`, retryAfter: wait }, { status: 429 });
     }
 
     const generatedOtp = generateOtp();
-    setOtp(otpKey, generatedOtp, OTP_TTL_MS);
-    await sendOtpEmail(email, generatedOtp, "register");
+    await setOtp(otpKey, generatedOtp, OTP_TTL_MS);
+    try {
+      await sendOtpEmail(email, generatedOtp, "register");
+    } catch (mailError) {
+      await clearOtp(otpKey);
+      throw mailError;
+    }
 
     return NextResponse.json({ success: true, message: `OTP sent to ${email}` });
   } catch (error) {

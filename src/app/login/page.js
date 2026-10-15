@@ -2,6 +2,8 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import {
   Phone, Mail, ShieldCheck, User, ArrowLeft, Loader2, CheckCircle2,
   Home as HomeIcon, Users, Headset, BadgeCheck, ChevronDown
@@ -217,10 +219,14 @@ function AuthPageContent() {
       </div>
 
       {/* RIGHT PANEL */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12">
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-start lg:justify-center px-4 py-6 sm:p-6 md:p-12">
         <div className="w-full max-w-md">
+          {/* Mobile: the left brand panel is hidden, so give a way back home */}
+          <Link href="/" className="lg:hidden flex justify-center mb-6">
+            <Image src="/main.png" alt="India Township" width={160} height={60} className="h-10 w-auto object-contain" priority />
+          </Link>
 
-          <div className="bg-white rounded-[2rem] p-8 md:p-10 shadow-[0_20px_60px_rgb(0,0,0,0.06)] border border-slate-100">
+          <div className="bg-white rounded-2xl sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-[0_20px_60px_rgb(0,0,0,0.06)] border border-slate-100">
 
             {step === 1 && (
               <div className="flex border-b border-slate-200 mb-8">

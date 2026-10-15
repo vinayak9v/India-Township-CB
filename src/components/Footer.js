@@ -10,14 +10,14 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="bg-[#081525] text-slate-300 font-sans relative pt-16 pb-6">
+    <footer className="bg-[#081525] text-slate-300 font-sans relative pt-12 lg:pt-16 pb-6">
       
       {/* Top Main Section */}
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-8 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-10 lg:gap-8 mb-10 lg:mb-16">
           
           {/* Column 1: Brand & Bio */}
-          <div className="lg:col-span-2">
+          <div className="col-span-2 md:col-span-4 lg:col-span-2">
             {/* Logo */}
             <div className="flex items-center gap-3 mb-6">
               <Home className="text-amber-500 w-8 h-8" strokeWidth={1.5} />
@@ -105,7 +105,7 @@ export default function Footer() {
           </div>
 
           {/* Column 5: Contact Us */}
-          <div className="lg:col-span-1">
+          <div className="col-span-2 md:col-span-1">
             <h3 className="text-white font-semibold mb-6">Contact Us</h3>
             <ul className="flex flex-col gap-5 text-sm text-slate-400">
               <li className="flex items-start gap-3">

@@ -20,7 +20,7 @@ export async function POST(req) {
       );
     }
 
-    const isValid = verifyOtp(`reset:${email}`, otp);
+    const isValid = await verifyOtp(`reset:${email}`, otp);
     if (!isValid) {
       return NextResponse.json(
         { success: false, message: "Invalid or expired OTP. Please request a new one." },
