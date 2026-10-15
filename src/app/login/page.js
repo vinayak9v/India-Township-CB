@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   Phone, Mail, ShieldCheck, User, ArrowLeft, Loader2, CheckCircle2,
-  Home as HomeIcon, Users, Headset, BadgeCheck, ChevronDown
+  Users, Headset, BadgeCheck, ChevronDown
 } from 'lucide-react';
 
 const BENEFITS = [
@@ -180,39 +180,46 @@ function AuthPageContent() {
     <main className="min-h-screen bg-[#f4f7fe] font-sans flex">
 
       {/* LEFT PANEL */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0a1629] to-slate-800 relative overflow-hidden flex-col justify-center px-16">
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#d9982b]/10 rounded-full"></div>
-        <div className="absolute -bottom-32 -left-16 w-80 h-80 bg-[#d9982b]/10 rounded-full"></div>
+      <div className="hidden lg:flex lg:w-1/2 bg-[#f4f7fe] relative overflow-hidden flex-col justify-center px-16">
+        <Image
+          src="/login-bg.webp"
+          alt=""
+          fill
+          priority
+          sizes="50vw"
+          className="object-cover"
+        />
 
-        <div className="relative z-10 max-w-md">
-          <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-8">
-            <HomeIcon className="w-7 h-7 text-[#d9982b]" />
-          </div>
+        {/* Frosted white card: keeps logo + text readable over any part of the photo, no colour wash */}
+        <div className="relative z-10 max-w-md bg-white/75 backdrop-blur-md rounded-3xl p-10 shadow-[0_20px_60px_rgba(10,22,41,0.18)] border border-white/60">
+          <Link href="/" className="inline-block mb-8">
+            <Image src="/main.png" alt="India Township" width={200} height={77} className="h-14 w-auto object-contain" />
+          </Link>
 
-          <h1 className="text-4xl font-bold text-white leading-tight mb-4">
-            Buy, Sell or Rent Property <span className="text-[#d9982b]">Faster</span> with IndianTownship
+          <h1 className="font-[family-name:var(--font-playfair)] text-[2.6rem] font-semibold text-[#0a1629] leading-[1.15] mb-4">
+            Buy, Sell or Rent Property <em className="text-[#b07a1c]">Faster</em> with India Township
           </h1>
-          <p className="text-slate-300 text-sm mb-10">
+          <p className="text-slate-600 text-base mb-8 max-w-sm">
             Join thousands of buyers, tenants, and owners already using our platform.
           </p>
 
-          <div className="flex flex-col gap-4 mb-10">
+          <div className="flex flex-col gap-3.5 mb-8">
             {BENEFITS.map((b, idx) => (
               <div key={idx} className="flex items-center gap-3">
-                <b.icon className="w-5 h-5 text-[#d9982b] shrink-0" />
-                <span className="text-sm text-slate-200 font-medium">{b.text}</span>
+                <b.icon className="w-5 h-5 text-[#b07a1c] shrink-0" />
+                <span className="text-sm text-[#0a1629] font-medium">{b.text}</span>
               </div>
             ))}
           </div>
 
-          <div className="flex items-center gap-8 pt-8 border-t border-white/10">
+          <div className="flex items-center gap-8 pt-6 border-t border-[#0a1629]/10">
             <div className="flex items-center gap-2.5">
-              <Users className="w-5 h-5 text-[#d9982b]" />
-              <span className="text-xs text-slate-300 font-medium">2500+ Happy Families</span>
+              <Users className="w-5 h-5 text-[#b07a1c]" />
+              <span className="text-xs text-[#0a1629] font-semibold">2500+ Happy Families</span>
             </div>
             <div className="flex items-center gap-2.5">
-              <BadgeCheck className="w-5 h-5 text-[#d9982b]" />
-              <span className="text-xs text-slate-300 font-medium">Verified Listings</span>
+              <BadgeCheck className="w-5 h-5 text-[#b07a1c]" />
+              <span className="text-xs text-[#0a1629] font-semibold">Verified Listings</span>
             </div>
           </div>
         </div>

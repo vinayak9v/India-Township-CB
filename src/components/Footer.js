@@ -1,147 +1,205 @@
 "use client";
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { 
-  Home, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  ChevronUp 
-} from 'lucide-react';
+import Image from 'next/image';
+import { MapPin, Phone, Mail, Clock, ChevronUp, ShieldCheck } from 'lucide-react';
+
+const SUPPORT_PHONE = '+91 98765 43210';
+const SUPPORT_PHONE_HREF = 'tel:+919876543210';
+const SUPPORT_EMAIL = 'contact@indiantownship.com';
+const OFFICE_ADDRESS = 'India Township HQ, India';
+
+// Only links to pages that exist on the site
+const LINK_COLUMNS = [
+  {
+    title: 'For Buyers',
+    links: [
+      { label: 'Property for Sale', href: '/allproject?listing_type=SELL' },
+      { label: 'Residential Property', href: '/allproject?listing_type=SELL&property_type=RESIDENTIAL' },
+      { label: 'Commercial Property', href: '/allproject?listing_type=SELL&property_type=COMMERCIAL' },
+      { label: 'All Projects', href: '/allproject' },
+    ],
+  },
+  {
+    title: 'For Tenants',
+    links: [
+      { label: 'Property for Rent', href: '/allproject?listing_type=RENT' },
+      { label: 'Homes for Rent', href: '/allproject?listing_type=RENT&property_type=RESIDENTIAL' },
+      { label: 'Commercial for Lease', href: '/allproject?listing_type=RENT&property_type=COMMERCIAL' },
+    ],
+  },
+  {
+    title: 'For Owners',
+    links: [
+      { label: 'Post Property', href: '/myProperty', badge: 'FREE' },
+      { label: 'My Properties', href: '/myProperty' },
+      { label: 'My Profile', href: '/profile' },
+      { label: 'Login / Register', href: '/login' },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { label: 'Home', href: '/' },
+      { label: 'Contact Us', href: '/contact' },
+    ],
+  },
+];
+
+const SOCIALS = [
+  { label: 'Facebook', path: <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /> },
+  // X (formerly Twitter) logo is a solid shape, so it is drawn filled instead of outlined
+  { label: 'X (Twitter)', filled: true, path: <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" /> },
+  { label: 'LinkedIn', path: <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></> },
+  { label: 'Instagram', path: <><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></> },
+];
 
 export default function Footer() {
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/admin/main-categories')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setCategories(data.data.filter((c) => c.status === 'ACTIVE'));
+      })
+      .catch(() => {});
+  }, []);
+
   return (
-    <footer className="bg-[#081525] text-slate-300 font-sans relative pt-12 lg:pt-16 pb-6">
-      
-      {/* Top Main Section */}
+    <footer className="bg-[#0a1629] text-slate-300 font-sans">
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-10 lg:gap-8 mb-10 lg:mb-16">
-          
-          {/* Column 1: Brand & Bio */}
-          <div className="col-span-2 md:col-span-4 lg:col-span-2">
-            {/* Logo */}
-            <div className="flex items-center gap-3 mb-6">
-              <Home className="text-amber-500 w-8 h-8" strokeWidth={1.5} />
-              <div className="flex flex-col leading-tight">
-                <div className="text-lg font-extrabold tracking-wide">
-                  <span className="text-white">DREAM</span>{' '}
-                  <span className="text-amber-500">HOME</span>
-                </div>
-                <span className="text-[10px] text-slate-400 tracking-[0.15em] uppercase font-medium">
-                  Properties
-                </span>
-              </div>
-            </div>
-            
-            <p className="text-sm text-slate-400 mb-8 leading-relaxed max-w-xs">
-              Your trusted partner in real estate.<br />
-              We help you buy, sell and rent<br />
-              properties with ease.
+
+        {/* ===== Brand + contact strip ===== */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 py-8 border-b border-white/10">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+            <Link href="/" className="shrink-0">
+              <Image src="/main.png" alt="India Township" width={180} height={69} className="h-12 w-auto object-contain brightness-0 invert" />
+            </Link>
+            <p className="text-sm text-slate-400 max-w-sm sm:border-l sm:border-white/10 sm:pl-6">
+              Your trusted partner to buy, sell and rent properties across India.
             </p>
-
-            {/* Social Icons (Using Inline SVGs to replace removed Lucide brand icons) */}
-            <div className="flex items-center gap-3">
-              <a href="#" className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all text-slate-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-                </svg>
-              </a>
-              <a href="#" className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all text-slate-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
-                </svg>
-              </a>
-              <a href="#" className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all text-slate-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-                  <rect x="2" y="9" width="4" height="12"/>
-                  <circle cx="4" cy="4" r="2"/>
-                </svg>
-              </a>
-              <a href="#" className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all text-slate-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-                </svg>
-              </a>
-            </div>
           </div>
 
-          {/* Column 2: Quick Links */}
-          <div className="lg:col-span-1">
-            <h3 className="text-white font-semibold mb-6">Quick Links</h3>
-            <ul className="flex flex-col gap-3 text-sm text-slate-400">
-              <li><Link href="/" className="hover:text-amber-500 transition-colors">Home</Link></li>
-              <li><Link href="/buy" className="hover:text-amber-500 transition-colors">Buy</Link></li>
-              <li><Link href="/rent" className="hover:text-amber-500 transition-colors">Rent</Link></li>
-              <li><Link href="/sell" className="hover:text-amber-500 transition-colors">Sell</Link></li>
-              <li><Link href="/about" className="hover:text-amber-500 transition-colors">About Us</Link></li>
-              <li><Link href="/contact" className="hover:text-amber-500 transition-colors">Contact Us</Link></li>
-            </ul>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
+            <a href={SUPPORT_PHONE_HREF} className="flex items-center gap-3 group">
+              <span className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                <Phone className="w-4 h-4 text-[#d9982b]" />
+              </span>
+              <span>
+                <span className="block text-[11px] uppercase tracking-wider text-slate-500">Call us</span>
+                <span className="block text-sm font-semibold text-white group-hover:text-[#d9982b]">{SUPPORT_PHONE}</span>
+              </span>
+            </a>
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="flex items-center gap-3 group min-w-0">
+              <span className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                <Mail className="w-4 h-4 text-[#d9982b]" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-[11px] uppercase tracking-wider text-slate-500">Email us</span>
+                <span className="block text-sm font-semibold text-white group-hover:text-[#d9982b] break-all">{SUPPORT_EMAIL}</span>
+              </span>
+            </a>
           </div>
-
-          {/* Column 3: Properties */}
-          <div className="lg:col-span-1">
-            <h3 className="text-white font-semibold mb-6">Properties</h3>
-            <ul className="flex flex-col gap-3 text-sm text-slate-400">
-              <li><Link href="#" className="hover:text-amber-500 transition-colors">Apartments</Link></li>
-              <li><Link href="#" className="hover:text-amber-500 transition-colors">Villas</Link></li>
-              <li><Link href="#" className="hover:text-amber-500 transition-colors">Independent House</Link></li>
-              <li><Link href="#" className="hover:text-amber-500 transition-colors">Plots</Link></li>
-              <li><Link href="#" className="hover:text-amber-500 transition-colors">Commercial</Link></li>
-            </ul>
-          </div>
-
-          {/* Column 4: Company */}
-          <div className="lg:col-span-1">
-            <h3 className="text-white font-semibold mb-6">Company</h3>
-            <ul className="flex flex-col gap-3 text-sm text-slate-400">
-              <li><Link href="#" className="hover:text-amber-500 transition-colors">About Us</Link></li>
-              <li><Link href="#" className="hover:text-amber-500 transition-colors">Our Services</Link></li>
-              <li><Link href="#" className="hover:text-amber-500 transition-colors">Careers</Link></li>
-              <li><Link href="#" className="hover:text-amber-500 transition-colors">Blog</Link></li>
-              <li><Link href="#" className="hover:text-amber-500 transition-colors">FAQs</Link></li>
-            </ul>
-          </div>
-
-          {/* Column 5: Contact Us */}
-          <div className="col-span-2 md:col-span-1">
-            <h3 className="text-white font-semibold mb-6">Contact Us</h3>
-            <ul className="flex flex-col gap-5 text-sm text-slate-400">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
-                <span>123, 4th Main Road,<br />HSR Layout, Bangalore - 560102</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-slate-400 shrink-0" />
-                <span>+91 98765 43210</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-slate-400 shrink-0" />
-                <span className="min-w-0 break-all">info@dreamhome.com</span>
-              </li>
-            </ul>
-          </div>
-
         </div>
 
-        {/* Bottom Section (Copyright & Legal) */}
-        <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400 relative">
-          <p>© 2024 Dream Home Properties. All Rights Reserved.</p>
-          
-          <div className="flex items-center gap-4">
-            <Link href="#" className="hover:text-amber-500 transition-colors">Terms & Conditions</Link>
-            <span className="w-[1px] h-3 bg-slate-700"></span>
-            <Link href="#" className="hover:text-amber-500 transition-colors">Privacy Policy</Link>
-          </div>
+        {/* ===== Link columns ===== */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-6 gap-y-10 py-10 border-b border-white/10">
+          {LINK_COLUMNS.map((col) => (
+            <div key={col.title}>
+              <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-4">{col.title}</h3>
+              <ul className="flex flex-col gap-2.5 text-sm">
+                {col.links.map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="text-slate-400 hover:text-[#d9982b] transition-colors inline-flex items-center gap-2">
+                      {link.label}
+                      {link.badge && (
+                        <span className="bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">{link.badge}</span>
+                      )}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
 
-          {/* Scroll to Top Button */}
-          <button 
+          <div className="col-span-2 md:col-span-1">
+            <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-4">Reach Us</h3>
+            <ul className="flex flex-col gap-3 text-sm text-slate-400">
+              <li className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 text-[#d9982b] shrink-0 mt-0.5" /> {OFFICE_ADDRESS}
+              </li>
+              <li className="flex items-start gap-2.5">
+                <Clock className="w-4 h-4 text-[#d9982b] shrink-0 mt-0.5" /> Mon – Sat, 9 AM – 8 PM
+              </li>
+            </ul>
+            <div className="flex items-center gap-2.5 mt-5">
+              {SOCIALS.map((s) => (
+                <a
+                  key={s.label}
+                  href="#"
+                  aria-label={s.label}
+                  className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-[#d9982b] hover:border-[#d9982b] hover:text-white transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={s.filled ? 13 : 15}
+                    height={s.filled ? 13 : 15}
+                    viewBox="0 0 24 24"
+                    {...(s.filled
+                      ? { fill: 'currentColor' }
+                      : { fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' })}
+                  >
+                    {s.path}
+                  </svg>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ===== Explore categories (from Main Categories) ===== */}
+        {categories.length > 0 && (
+          <div className="py-8 border-b border-white/10">
+            <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-4">Explore Categories</h3>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/allproject?main_category_id=${cat.id}`}
+                  className="text-xs text-slate-300 bg-white/5 border border-white/10 hover:border-[#d9982b] hover:text-[#d9982b] px-3 py-1.5 rounded-full transition-colors"
+                >
+                  {cat.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ===== Disclaimer ===== */}
+        <div className="py-6 border-b border-white/10 flex gap-3">
+          <ShieldCheck className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
+          <p className="text-xs text-slate-500 leading-relaxed">
+            <span className="font-semibold text-slate-400">Disclaimer:</span> India Township is only an intermediary offering its platform
+            to advertise properties of sellers and owners. Information about listings is provided by the advertisers, and India Township
+            does not guarantee its accuracy. Please verify all details independently before making any decision.
+          </p>
+        </div>
+
+        {/* ===== Bottom bar ===== */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 text-xs text-slate-500">
+          <p>© {new Date().getFullYear()} India Township. All rights reserved.</p>
+          <button
+            type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="absolute -top-14 right-0 md:-right-4 w-10 h-10 bg-[#d9982b] hover:bg-amber-500 transition-colors rounded-md flex items-center justify-center shadow-lg"
+            className="flex items-center gap-1.5 text-slate-400 hover:text-[#d9982b] transition-colors"
             aria-label="Back to top"
           >
-            <ChevronUp className="w-5 h-5 text-white" />
+            Back to top
+            <span className="w-8 h-8 rounded-full bg-[#d9982b] flex items-center justify-center">
+              <ChevronUp className="w-4 h-4 text-white" />
+            </span>
           </button>
         </div>
       </div>
