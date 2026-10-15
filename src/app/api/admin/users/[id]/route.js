@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import db from "@/lib/db";
+import { setUserActive } from "@/lib/usersSchema";
 
 // ==========================================
 // PUT: Activate / deactivate a user account
@@ -13,9 +13,9 @@ export async function PUT(req, { params }) {
       return NextResponse.json({ success: false, error: "is_active (boolean) is required" }, { status: 400 });
     }
 
-    const [result] = await db.query("UPDATE users SET is_active = ? WHERE id = ?", [is_active ? 1 : 0, id]);
+    const affected = await setUserActive(id, !!is_active);
 
-    if (result.affectedRows === 0) {
+    if (affected === 0) {
       return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
     }
 

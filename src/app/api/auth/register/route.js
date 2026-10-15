@@ -3,6 +3,7 @@ import db from "@/lib/db";
 import jwt from "jsonwebtoken";
 import { generateOtp, setOtp, verifyOtp, resendWaitSeconds, clearOtp } from "@/lib/otpStore";
 import { sendOtpEmail } from "@/lib/nodemailer";
+import { insertUser } from "@/lib/usersSchema";
 
 const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -20,12 +21,14 @@ async function findConflict(email, phone) {
 //   1. { name, email, phone }       -> validates and emails a 6-digit OTP
 //   2. { name, email, phone, otp }  -> verifies it, creates the user and returns a JWT
 export async function POST(req) {
+  let stage = "start";
   try {
     const body = await req.json();
     const name = String(body.name || "").trim();
     const email = String(body.email || "").trim().toLowerCase();
     const phone = String(body.phone || "").replace(/\D/g, "");
     const otp = body.otp ? String(body.otp).trim() : "";
+    stage = otp ? "verify" : "send";
 
     if (!name || !email || !phone) {
       return NextResponse.json({ success: false, message: "Name, email and phone are required" }, { status: 400 });
@@ -53,18 +56,16 @@ export async function POST(req) {
         return NextResponse.json({ success: false, message: conflict }, { status: 400 });
       }
 
-      const [result] = await db.query(
-        "INSERT INTO users (name, email, phone, role) VALUES (?, ?, ?, 'USER')",
-        [name, email, phone]
-      );
+      // insertUser adapts to the users table's real columns (they differ between local and live)
+      const { id: userId, role } = await insertUser({ name, email, phone });
 
-      const token = jwt.sign({ id: result.insertId, role: "USER" }, process.env.JWT_SECRET, { expiresIn: "24h" });
+      const token = jwt.sign({ id: userId, role }, process.env.JWT_SECRET, { expiresIn: "24h" });
 
       const response = NextResponse.json({
         success: true,
         message: "Registered successfully!",
         token,
-        user: { id: result.insertId, name, email, phone, role: "USER" },
+        user: { id: userId, name, email, phone, role },
       });
 
       response.cookies.set("token", token, {
@@ -101,7 +102,12 @@ export async function POST(req) {
 
     return NextResponse.json({ success: true, message: `OTP sent to ${email}` });
   } catch (error) {
-    console.error("Register Error:", error);
-    return NextResponse.json({ success: false, message: "Could not send OTP right now. Please try again." }, { status: 500 });
+    console.error(`Register Error (${stage}):`, error);
+    const msg =
+      error.code === "ER_DUP_ENTRY" ? "This email or phone number is already registered."
+      : stage === "send" ? "Could not send OTP right now. Please try again."
+      : "Could not create your account right now. Please try again.";
+    // `code` (e.g. ER_NO_DEFAULT_FOR_FIELD, EAUTH) helps diagnose live-server issues without exposing details
+    return NextResponse.json({ success: false, message: msg, code: error.code || null }, { status: 500 });
   }
 }

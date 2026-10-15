@@ -3,6 +3,7 @@ import db from "@/lib/db";
 import jwt from "jsonwebtoken";
 import { generateOtp, setOtp, verifyOtp, resendWaitSeconds, clearOtp } from "@/lib/otpStore";
 import { sendOtpEmail } from "@/lib/nodemailer";
+import { isUserActive } from "@/lib/usersSchema";
 
 const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
@@ -10,10 +11,12 @@ const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes
 //   1. { email }        -> emails a 6-digit OTP
 //   2. { email, otp }   -> verifies it and returns a JWT
 export async function POST(req) {
+  let stage = "start";
   try {
     const body = await req.json();
     const email = String(body.email || "").trim().toLowerCase();
     const otp = body.otp ? String(body.otp).trim() : "";
+    stage = otp ? "verify" : "send";
 
     if (!email) {
       return NextResponse.json({ success: false, error: "Email is required" }, { status: 400 });
@@ -25,7 +28,7 @@ export async function POST(req) {
     }
     const user = users[0];
 
-    if (user.is_active === 0) {
+    if (!isUserActive(user)) {
       return NextResponse.json({ success: false, error: "This account has been deactivated. Please contact support." }, { status: 403 });
     }
 
@@ -78,7 +81,12 @@ export async function POST(req) {
 
     return NextResponse.json({ success: true, message: `OTP sent to ${email}` });
   } catch (error) {
-    console.error("Login Error:", error);
-    return NextResponse.json({ success: false, error: "Could not send OTP right now. Please try again." }, { status: 500 });
+    console.error(`Login Error (${stage}):`, error);
+    const msg =
+      error.code === "ER_DUP_ENTRY" ? "This email or phone number is already registered."
+      : stage === "send" ? "Could not send OTP right now. Please try again."
+      : "Could not log you in right now. Please try again.";
+    // `code` (e.g. ER_NO_DEFAULT_FOR_FIELD, EAUTH) helps diagnose live-server issues without exposing details
+    return NextResponse.json({ success: false, error: msg, code: error.code || null }, { status: 500 });
   }
 }

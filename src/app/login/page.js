@@ -112,7 +112,7 @@ function AuthPageContent() {
 
       if (!res.ok || !data.success) {
         if (data.retryAfter) setResendIn(data.retryAfter);
-        throw new Error(data.message || data.error || 'Failed to send OTP.');
+        throw new Error(`${data.message || data.error || 'Failed to send OTP.'}${data.code ? ` [${data.code}]` : ''}`);
       }
 
       setSuccess(data.message || 'OTP sent to your email.');
@@ -151,7 +151,7 @@ function AuthPageContent() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.message || data.error || 'Verification failed.');
+        throw new Error(`${data.message || data.error || 'Verification failed.'}${data.code ? ` [${data.code}]` : ''}`);
       }
 
       if (data.token) localStorage.setItem('authToken', data.token);

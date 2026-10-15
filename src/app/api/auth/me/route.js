@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
 import jwt from "jsonwebtoken";
+import { userSelectColumns } from "@/lib/usersSchema";
 
 // ==========================================
 // GET: Current logged-in user's own profile
@@ -20,7 +21,7 @@ export async function GET(req) {
     }
 
     const [users] = await db.query(
-      "SELECT id, name, phone, email, role, profile_image, is_active, created_at FROM users WHERE id = ?",
+      `SELECT ${await userSelectColumns()} FROM users WHERE id = ?`,
       [decoded.id]
     );
 
